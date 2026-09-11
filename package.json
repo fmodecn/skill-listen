@@ -1,0 +1,38 @@
+{
+  "name": "fmode-listen",
+  "version": "0.2.0",
+  "description": "Claude Code skill: 录音文件转写（讯飞 LFASR）通过 Fmode 网关 /api/listen/transcribe 完成。讯飞凭据仅服务端持有，客户端只需 fmode token，服务端按音频时长计费。提供 `npx fmode-listen transcribe` 直连命令 + Claude Code 技能安装器。",
+  "type": "commonjs",
+  "bin": {
+    "fmode-listen": "bin/fmode-listen.js"
+  },
+  "scripts": {
+    "smoke": "node scripts/smoke.js"
+  },
+  "files": [
+    ".claude-plugin/",
+    "bin/",
+    "README.md",
+    "scripts/",
+    "skill-package-manifest.json",
+    "skills/"
+  ],
+  "keywords": [
+    "claude-code",
+    "claude-skill",
+    "fmode",
+    "listen",
+    "transcribe",
+    "transcription",
+    "asr",
+    "iflytek",
+    "speech-to-text",
+    "audio"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/fmodecn/skill-listen.git"
+  },
+  "homepage": "https://github.com/fmodecn/skill-listen#readme"
+}
