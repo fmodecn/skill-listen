@@ -33,6 +33,7 @@ npx --yes fmode-listen@latest transcribe -- meeting.mp3 --gateway https://server
 
 客户端只需要 **fmode token**。运行器按以下优先级自动解析（**仓库与代码中无任何密钥**）：
 
+0. **第0级自举（推荐）**：`FMODE_SESSION_TOKEN` 环境变量或 `~/.fmode/config.json` 的 `sessionToken` → 调 fmode API 动态换取 API token。登录 FMODE Studio 即可，**无需手工配置任何 token**；换取的 token 仅内存持有，不落盘不进日志。
 1. 环境变量 `FMODE_API_TOKEN`
 2. `~/.fmode/config.json` → `fmodeApiToken` / `newapiToken`（FmodeStudio 保存配置后写入）
 3. 项目 `./.fmode/config.json` → 同上

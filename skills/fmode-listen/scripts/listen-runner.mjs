@@ -6,7 +6,7 @@
  * 服务端鉴权后调用讯飞并按音频时长计费（ceil(分钟) × 单价）。
  *
  * 导出：
- *   - resolveApiToken()    三级优先级获取 fmode token
+ *   - resolveApiToken()    第0级 sessionToken 自举 + 回落链获取 fmode token
  *   - probeDurationMs()    用 ffprobe / fmode-ffmpeg 探测音频时长（可选）
  *   - transcribeFile()     上传本地音频文件并返回转写结果
  *
@@ -38,12 +38,54 @@ const DEFAULT_GATEWAY = process.env.FMODE_LISTEN_GATEWAY
 // 正常方式配好 SK，技能却「看不见」→ 判缺 token → 掉进旧付费弹窗死循环。
 // 这里直接读该文件，且校验 sk- 开头、排除真 Anthropic sk-ant-、base 指向 fmode。
 //
-// 取值优先级：
+// 取值优先级（第0级为 sessionToken 自举，其余为回落链）：
+//   0. sessionToken 自举：FMODE_SESSION_TOKEN 环境变量或 ~/.fmode/config.json 的
+//      sessionToken → POST https://server.fmode.cn/api/fmode/voc-skill/install-prompt
+//      → 从返回 prompt 中提取 fmode API token（sk- 开头，排除 sk-ant-）。
+//      ⚠️ token 仅内存持有，不落盘不进日志。
 //   1. 显式入参 token / 环境变量 FMODE_API_TOKEN
 //   2. ~/.fmode/config.json → fmodeApiToken / newapiToken（FmodeStudio 保存写这里）
 //   3. <cwd>/.fmode/config.json → fmodeApiToken / newapiToken
 //   4. 进程注入的 ANTHROPIC_AUTH_TOKEN（Claude Code 把 settings.env 注入子进程时）
 //   5. ~/.claude/settings.json 等文件里的 env.ANTHROPIC_AUTH_TOKEN（独立运行未被注入时）
+
+const FMODE_API_BASE = (process.env.FMODE_API_BASE || 'https://server.fmode.cn').replace(/\/$/, '');
+
+/** 第0级：解析 sessionToken（env FMODE_SESSION_TOKEN → ~/.fmode/config.json）。找不到返回 null。 */
+function resolveSessionToken() {
+  if (process.env.FMODE_SESSION_TOKEN) return process.env.FMODE_SESSION_TOKEN.trim();
+  const p = path.join(os.homedir(), '.fmode', 'config.json');
+  try {
+    if (!fs.existsSync(p)) return null;
+    const cfg = JSON.parse(fs.readFileSync(p, 'utf-8').replace(/^﻿/, ''));
+    const t = cfg.sessionToken || (cfg.user && cfg.user.sessionToken) || null;
+    return t && String(t).trim() ? String(t).trim() : null;
+  } catch { return null; }
+}
+
+/**
+ * 第0级：sessionToken → fmode API token（自举）。
+ * 服务端唯一以 session 鉴权并返回 token 本体的端点是 voc-skill 安装指令生成器；
+ * token 内嵌在返回 prompt 文本中，这里提取后仅内存持有（不落盘不进日志）。
+ * @returns {Promise<string|null>} 提取失败返回 null（调用方回落下一级）。
+ */
+async function fetchApiTokenFromSession(sessionToken) {
+  if (!sessionToken) return null;
+  try {
+    const res = await fetch(`${FMODE_API_BASE}/api/fmode/voc-skill/install-prompt`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-parse-session-token': sessionToken },
+      body: JSON.stringify({ channel: 'claude-code', scope: 'user', source: 'skill-token-bootstrap' }),
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) return null;
+    const body = await res.json().catch(() => null);
+    const prompt = body && body.data && typeof body.data.prompt === 'string' ? body.data.prompt : '';
+    const m = prompt.match(/sk-(?!ant-)[A-Za-z0-9_-]{8,}/);
+    return m ? m[0] : null;
+  } catch { /* 网络失败一律回落，不泄露错误细节 */ }
+  return null;
+}
 
 function readJsonMaybe(filePath) {
   try {
@@ -88,12 +130,28 @@ function pickFmodeAnthropicToken(env) {
 }
 
 /**
- * 获取 fmode API token。
+ * 获取 fmode API token。加载链优先级（第0级自举 → 回落）：
+ *   0. sessionToken 自举（FMODE_SESSION_TOKEN 或 ~/.fmode/config.json）→ fmode API 换取
+ *   1. 环境变量 FMODE_API_TOKEN
+ *   2. ~/.fmode/config.json → fmodeApiToken / newapiToken（FmodeStudio 保存写这里）
+ *   3. ~/.claude/settings.json 等 → env.ANTHROPIC_AUTH_TOKEN（sk- 开头非 sk-ant-）
+ *   4. <project>/.fmode/config.json → fmodeApiToken / newapiToken
  *
  * @param {string} [projectRoot] 项目根目录，默认 process.cwd()
- * @returns {{ token: string, source: string }}
+ * @returns {Promise<{ token: string, source: string }>}
  */
-export function resolveApiToken(projectRoot) {
+export async function resolveApiToken(projectRoot) {
+  // 第0级自举：sessionToken → fmode API 换取
+  const sessionToken = resolveSessionToken();
+  if (sessionToken) {
+    const bootstrapped = await fetchApiTokenFromSession(sessionToken);
+    if (bootstrapped) {
+      return { token: bootstrapped, source: 'level0:sessionToken->fmode-api' };
+    }
+    // 自举失败：明确报错指向重新登录，随后回落
+    console.error('sessionToken 存在但换取 fmode API token 失败——sessionToken 缺失或失效，请重新登录 FMODE Studio 或配置 FMODE_SESSION_TOKEN');
+  }
+
   if (process.env.FMODE_API_TOKEN) {
     return { token: process.env.FMODE_API_TOKEN, source: 'env:FMODE_API_TOKEN' };
   }
@@ -125,7 +183,8 @@ export function resolveApiToken(projectRoot) {
   }
 
   throw new Error(
-    '未找到 Fmode API token。请通过以下任一方式提供：\n' +
+    '未找到 Fmode API token。请通过以下任一方式提供（第0级自举 → 回落）：\n' +
+    '  0. 登录 FMODE Studio 后自动自举（FMODE_SESSION_TOKEN 或 ~/.fmode/config.json 的 sessionToken）\n' +
     '  1. 环境变量 FMODE_API_TOKEN\n' +
     '  2. ~/.fmode/config.json 中 fmodeApiToken 字段（FmodeStudio 保存配置后写入）\n' +
     '  3. 项目 .fmode/config.json 中 fmodeApiToken 字段\n' +
@@ -216,7 +275,7 @@ export async function transcribeFile(opts) {
     throw new Error(`音频文件不存在: ${filePath}`);
   }
 
-  const token = opts.token || resolveApiToken().token;
+  const token = opts.token || (await resolveApiToken()).token;
   const audio = fs.readFileSync(filePath);
   const fileName = path.basename(filePath);
 

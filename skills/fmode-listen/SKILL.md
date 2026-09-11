@@ -20,8 +20,9 @@ description_en: "Transcribe recorded audio to text (iFlytek LFASR) through the F
 
 ## 鉴权（必读）
 
-客户端只需提供 **fmode token**，运行器按以下优先级自动解析：
+客户端只需提供 **fmode token**，运行器按以下优先级自动解析（第0级自举 → 回落）：
 
+0. **第0级自举**：`FMODE_SESSION_TOKEN` 或 `~/.fmode/config.json` 的 `sessionToken` → 调 fmode API 动态换取 API token（登录 FMODE Studio 即可，无需手工配置；token 仅内存持有，不落盘不进日志）
 1. 环境变量 `FMODE_API_TOKEN`
 2. `~/.fmode/config.json` 的 `fmodeApiToken` / `newapiToken` 字段（FmodeStudio 保存配置后写入）
 3. 项目 `./.fmode/config.json` 的 `fmodeApiToken` / `newapiToken` 字段
