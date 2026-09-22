@@ -4,7 +4,7 @@
 > 讯飞「录音文件转写」(LFASR) 异步识别，经 Fmode 网关 `POST /api/listen/transcribe` 完成。讯飞凭据仅服务端持有，客户端只需 fmode token，按音频真实时长计费。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![npm](https://img.shields.io/badge/npm-fmode--listen-blue)](https://www.npmjs.com/package/fmode-listen)
+[![npm](https://img.shields.io/badge/npm-fmode--listen-blue)](https://www.npmjs.com/package/skill-listen)
 
 ## 能力
 
@@ -17,14 +17,14 @@
 
 ```bash
 # 直接连网关转写（无需安装技能，一行命令）
-npx --yes fmode-listen@latest transcribe -- meeting.mp3
+npx --yes skill-listen@latest transcribe -- meeting.mp3
 
 # 指定语言 + 说话人分离 + 写出完整 JSON
-npx --yes fmode-listen@latest transcribe -- meeting.mp3 \
+npx --yes skill-listen@latest transcribe -- meeting.mp3 \
   --language autodialect --diarize --speakers 3 --out result.json
 
 # 自定义网关（默认 https://server.fmode.cn/api/listen）
-npx --yes fmode-listen@latest transcribe -- meeting.mp3 --gateway https://server.fmode.cn/api/listen
+npx --yes skill-listen@latest transcribe -- meeting.mp3 --gateway https://server.fmode.cn/api/listen
 ```
 
 > `transcribe` 后必须加 `--`，其后参数透传给运行器。
@@ -49,9 +49,9 @@ npx --yes fmode-listen@latest transcribe -- meeting.mp3 --gateway https://server
 ### Claude Code（推荐 npx 安装器）
 
 ```bash
-npx --yes fmode-listen@latest install          # 装到 ~/.claude/skills/fmode-listen
-npx --yes fmode-listen@latest workspace        # 或装到当前项目 ./.claude/skills/
-npx --yes fmode-listen@latest check            # 校验安装
+npx --yes skill-listen@latest install          # 装到 ~/.claude/skills/skill-listen
+npx --yes skill-listen@latest workspace        # 或装到当前项目 ./.claude/skills/
+npx --yes skill-listen@latest check            # 校验安装
 ```
 
 装完在 Claude Code 里直接说：「帮我把这段会议录音转成文字」即可触发。
@@ -63,21 +63,21 @@ Codex 无 skill 机制，用 **CLI 直连**方式（技能体只是提示词封�
 ```bash
 # AGENTS.md 里加一段：
 # ## 录音转写
-# 转写音频用: npx --yes fmode-listen@latest transcribe -- <file> [--diarize --out out.json]
+# 转写音频用: npx --yes skill-listen@latest transcribe -- <file> [--diarize --out out.json]
 # token 从环境变量 FMODE_API_TOKEN 或 ~/.fmode/config.json 读取。
 ```
 
-或直接把 `skills/fmode-listen/SKILL.md` 内容粘进你的 `AGENTS.md` / 自定义 instructions。
+或直接把 `skills/skill-listen/SKILL.md` 内容粘进你的 `AGENTS.md` / 自定义 instructions。
 
 ### Gemini CLI
 
-Gemini CLI 支持自定义命令（`~/.gemini/commands/`）。把 `skills/fmode-listen/SKILL.md` 存为：
+Gemini CLI 支持自定义命令（`~/.gemini/commands/`）。把 `skills/skill-listen/SKILL.md` 存为：
 
 ```
 ~/.gemini/commands/transcribe.toml
 ```
 
-prompt 段写：`npx --yes fmode-listen@latest transcribe -- {{args}}`，之后 `/transcribe meeting.mp3` 即可调用。
+prompt 段写：`npx --yes skill-listen@latest transcribe -- {{args}}`，之后 `/transcribe meeting.mp3` 即可调用。
 
 ### WorkBuddy / 其他 Skill 规范工具
 
@@ -85,13 +85,13 @@ prompt 段写：`npx --yes fmode-listen@latest transcribe -- {{args}}`，之后 
 
 ```bash
 git clone https://github.com/fmodecn/skill-listen.git
-cp -r skill-listen/skills/fmode-listen <你的工具技能目录>/fmode-listen
+cp -r skill-listen/skills/skill-listen <你的工具技能目录>/skill-listen
 ```
 
 技能目录结构：
 
 ```
-fmode-listen/
+skill-listen/
 ├── SKILL.md            # 技能说明（frontmatter: name/description）
 └── scripts/
     └── listen-runner.mjs   # 运行器（Node ≥18，零依赖）
@@ -103,8 +103,8 @@ fmode-listen/
 
 ```bash
 git clone https://github.com/fmodecn/skill-listen.git
-cp -r skill-listen/skills/fmode-listen ~/.hermes/skills/
-hermes skills   # 确认 fmode-listen 出现在列表
+cp -r skill-listen/skills/skill-listen ~/.hermes/skills/
+hermes skills   # 确认 skill-listen 出现在列表
 ```
 
 ## 计费与安全

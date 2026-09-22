@@ -1,5 +1,5 @@
 ---
-name: fmode-listen
+name: skill-listen
 description: "把录音文件转写成文字（讯飞「录音文件转写」LFASR），通过 Fmode 网关 /api/listen/transcribe 完成。适用场景：(1) 会议/采访/课程录音转文字, (2) 视频先抽音轨再转写, (3) 需要中英多语种/方言识别, (4) 需要说话人分离的多人对话整理。讯飞凭据仅服务端持有，客户端只需 fmode token，服务端按音频真实时长计费。"
 description_en: "Transcribe recorded audio to text (iFlytek LFASR) through the Fmode gateway /api/listen/transcribe. Use for: (1) meeting/interview/lecture transcription, (2) extracting audio from video then transcribing, (3) multi-language/dialect recognition, (4) speaker diarization for multi-speaker conversations. iFlytek credentials live only on the server; the client only needs an fmode token, and the server bills by actual audio duration."
 ---
@@ -38,14 +38,14 @@ description_en: "Transcribe recorded audio to text (iFlytek LFASR) through the F
 
 ```bash
 # 基础：转写一个录音文件（自动探测时长用于计费预估）
-npx --yes fmode-listen@latest transcribe -- meeting.mp3
+npx --yes skill-listen@latest transcribe -- meeting.mp3
 
 # 指定语言 + 说话人分离 + 写出完整 JSON
-npx --yes fmode-listen@latest transcribe -- meeting.mp3 \
+npx --yes skill-listen@latest transcribe -- meeting.mp3 \
   --language autodialect --diarize --speakers 3 --out result.json
 
 # 自定义网关（默认 https://server.fmode.cn/api/listen）
-npx --yes fmode-listen@latest transcribe -- meeting.mp3 --gateway https://server.fmode.cn/api/listen
+npx --yes skill-listen@latest transcribe -- meeting.mp3 --gateway https://server.fmode.cn/api/listen
 ```
 
 `transcribe` 后必须加 `--`，其后参数透传给运行器。stdout 输出纯文本转写结果；`--out` 额外写出网关返回的完整 JSON。
@@ -110,11 +110,11 @@ Body:    原始音频字节
 ## 安装为 Claude Code 技能
 
 ```bash
-# 项目级 → ./.claude/skills/fmode-listen
-npx --yes fmode-listen@latest workspace
+# 项目级 → ./.claude/skills/skill-listen
+npx --yes skill-listen@latest workspace
 
-# 用户级 → ~/.claude/skills/fmode-listen
-npx --yes fmode-listen@latest install
+# 用户级 → ~/.claude/skills/skill-listen
+npx --yes skill-listen@latest install
 ```
 
 安装后可直接提示 Claude Code，例如：`把 meeting.mp3 转写成文字，开启说话人分离。`

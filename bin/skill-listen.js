@@ -4,7 +4,7 @@ const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
 
-const SKILL_NAME = 'fmode-listen';
+const SKILL_NAME = 'skill-listen';
 const SOURCE_ROOT = path.resolve(__dirname, '..');
 const SKILL_SOURCE = path.join(SOURCE_ROOT, 'skills', SKILL_NAME);
 const RUNNER = path.join(SKILL_SOURCE, 'scripts', 'listen-runner.mjs');
@@ -26,7 +26,7 @@ function expandHome(value) {
 function runRunner(passthrough) {
   const result = spawnSync(process.execPath, [RUNNER, ...passthrough], { stdio: 'inherit', shell: false });
   if (result.error) {
-    console.error(`fmode-listen: failed to launch runner: ${result.error.message}`);
+    console.error(`skill-listen: failed to launch runner: ${result.error.message}`);
     process.exit(1);
   }
   process.exit(result.status == null ? 1 : result.status);
@@ -65,23 +65,23 @@ function parseArgs(argv) {
 
 function printHelp() {
   console.log([
-    'fmode-listen — 录音转写网关客户端 + Claude Code 技能安装器',
+    'skill-listen — 录音转写网关客户端 + Claude Code 技能安装器',
     '',
     '通过 Fmode 网关转写音频（讯飞录音文件转写，凭据仅服务端）：',
-    '  npx fmode-listen@latest transcribe -- audio.mp3 [--language autodialect] [--diarize]',
+    '  npx skill-listen@latest transcribe -- audio.mp3 [--language autodialect] [--diarize]',
     '      需要 fmode token（环境变量 FMODE_API_TOKEN 或 ~/.fmode/config.json）',
     '',
     '安装 Claude Code 技能：',
-    '  npx fmode-listen@latest workspace [--smoke]   # 安装到 ./.claude/skills/fmode-listen',
-    '  npx fmode-listen@latest install [--smoke]     # 安装到 ~/.claude/skills/fmode-listen',
-    '  npx fmode-listen@latest install --target <dir> [--force]',
-    '  npx fmode-listen@latest check',
-    '  npx fmode-listen@latest smoke',
-    '  npx fmode-listen@latest path',
+    '  npx skill-listen@latest workspace [--smoke]   # 安装到 ./.claude/skills/skill-listen',
+    '  npx skill-listen@latest install [--smoke]     # 安装到 ~/.claude/skills/skill-listen',
+    '  npx skill-listen@latest install --target <dir> [--force]',
+    '  npx skill-listen@latest check',
+    '  npx skill-listen@latest smoke',
+    '  npx skill-listen@latest path',
     '',
     'Options:',
-    '  --workspace      安装到 ./.claude/skills/fmode-listen',
-    '  --global         安装到 ~/.claude/skills/fmode-listen（默认）',
+    '  --workspace      安装到 ./.claude/skills/skill-listen',
+    '  --global         安装到 ~/.claude/skills/skill-listen（默认）',
     '  --target <dir>   安装到自定义目录',
     '  --force          允许覆盖自定义目录',
     '  --smoke          安装后运行冒烟检查',
@@ -189,4 +189,4 @@ function main() {
 }
 
 try { main(); }
-catch (error) { console.error(`fmode-listen failed: ${error.message}`); process.exit(1); }
+catch (error) { console.error(`skill-listen failed: ${error.message}`); process.exit(1); }

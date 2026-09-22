@@ -1,5 +1,5 @@
 /**
- * fmode-listen 录音转写网关客户端
+ * skill-listen 录音转写网关客户端
  *
  * 通过 Fmode 网关 POST /api/listen/transcribe 调用讯飞「录音文件转写」。
  * 客户端不持有讯飞凭据——凭据仅在服务端。客户端只需携带 fmode token，
@@ -371,7 +371,7 @@ const isMain = (() => {
 
 if (isMain) {
   main().catch((err) => {
-    console.error(`fmode-listen: ${err.message}`);
+    console.error(`skill-listen: ${err.message}`);
     process.exit(1);
   });
 }
