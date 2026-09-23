@@ -1,6 +1,6 @@
 {
   "name": "skill-listen",
-  "version": "0.2.1",
+  "version": "1.1.0",
   "description": "Claude Code 独立技能包：录音文件转写（讯飞 LFASR）通过 Fmode 网关 /api/listen/transcribe 完成。讯飞凭据仅服务端持有，客户端只需 fmode token，服务端按音频真实时长计费。支持中英多语种、方言、说话人分离。",
   "plugin": "skill-listen",
   "skills": [
@@ -13,5 +13,7 @@
   "workspaceInstallCommand": "npx skill-listen@latest workspace",
   "workspaceSkillPath": ".claude/skills/skill-listen/SKILL.md",
   "globalSkillPath": "%USERPROFILE%/.claude/skills/skill-listen/SKILL.md",
-  "installHint": "工作区安装：npx skill-listen@latest workspace，会写入 ./.claude/skills/skill-listen/。用户级安装：npx skill-listen@latest install，会写入 ~/.claude/skills/skill-listen/。转写走 Fmode 网关 /api/listen/transcribe，凭据仅服务端，客户端只需 fmode token（环境变量 FMODE_API_TOKEN > ~/.fmode/config.json > ~/.claude/settings.json 的 env.ANTHROPIC_AUTH_TOKEN，即 Claude Code 的 sk- token，自动读取、无需手动配置）。"
+  "installHint": "工作区安装：npx skill-listen@latest workspace，会写入 ./.claude/skills/skill-listen/。用户级安装：npx skill-listen@latest install，会写入 ~/.claude/skills/skill-listen/。转写走 Fmode 网关 /api/listen/transcribe，凭据仅服务端，客户端只需 fmode token（环境变量 FMODE_API_TOKEN > ~/.fmode/config.json > ~/.claude/settings.json 的 env.ANTHROPIC_AUTH_TOKEN，即 Claude Code 的 sk- token，自动读取、无需手动配置）。",
+  "license": "MIT",
+  "copyright": "Copyright (c) 2026 未来飞马 Fmode"
 }

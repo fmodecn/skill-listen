@@ -2,6 +2,11 @@
 name: skill-listen
 description: "把录音文件转写成文字（讯飞「录音文件转写」LFASR），通过 Fmode 网关 /api/listen/transcribe 完成。适用场景：(1) 会议/采访/课程录音转文字, (2) 视频先抽音轨再转写, (3) 需要中英多语种/方言识别, (4) 需要说话人分离的多人对话整理。讯飞凭据仅服务端持有，客户端只需 fmode token，服务端按音频真实时长计费。"
 description_en: "Transcribe recorded audio to text (iFlytek LFASR) through the Fmode gateway /api/listen/transcribe. Use for: (1) meeting/interview/lecture transcription, (2) extracting audio from video then transcribing, (3) multi-language/dialect recognition, (4) speaker diarization for multi-speaker conversations. iFlytek credentials live only on the server; the client only needs an fmode token, and the server bills by actual audio duration."
+version: 1.1.0
+author: Yuyang001 (FmodeAgent)
+license: MIT
+copyright: "Copyright (c) 2026 未来飞马 Fmode"
+tags: [未来飞马, 智能体技能, 超级技能, 服务级, 音频处理, FmodeAgent, FmodeCode, listen, transcribe, asr, speech-to-text, diarization]
 ---
 
 # Fmode Listen — 录音转写网关技能
