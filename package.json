@@ -51,7 +51,7 @@
     "音频处理"
   ],
   "author": "Yuyang001 (FmodeAgent)",
-  "license": "MIT",
+  "license": "MPL-2.0",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/fmodecn/skill-listen.git"

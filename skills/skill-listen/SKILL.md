@@ -4,9 +4,9 @@ description: "把录音文件转写成文字（讯飞「录音文件转写」LFA
 description_en: "Transcribe recorded audio to text (iFlytek LFASR) through the Fmode gateway /api/listen/transcribe. Use for: (1) meeting/interview/lecture transcription, (2) extracting audio from video then transcribing, (3) multi-language/dialect recognition, (4) speaker diarization for multi-speaker conversations. iFlytek credentials live only on the server; the client only needs an fmode token, and the server bills by actual audio duration."
 version: 1.1.0
 author: Yuyang001 (FmodeAgent)
-license: MIT
+license: MPL-2.0
 copyright: "Copyright (c) 2026 未来飞马 Fmode"
-tags: [未来飞马, 智能体技能, 超级技能, 服务级, 音频处理, FmodeAgent, FmodeCode, listen, transcribe, asr, speech-to-text, diarization]
+tags: [未来飞马, 智能体技能, 超级技能, 服务级, 音频处理, FmodeAgent, Hermes Agent, FmodeCode, Claude Code, listen, transcribe, asr, speech-to-text, diarization]
 ---
 
 # Fmode Listen — 录音转写网关技能
@@ -31,9 +31,9 @@ tags: [未来飞马, 智能体技能, 超级技能, 服务级, 音频处理, Fmo
 1. 环境变量 `FMODE_API_TOKEN`
 2. `~/.fmode/config.json` 的 `fmodeApiToken` / `newapiToken` 字段（FmodeStudio 保存配置后写入）
 3. 项目 `./.fmode/config.json` 的 `fmodeApiToken` / `newapiToken` 字段
-4. `~/.claude/settings.json`（含 `settings.local.json` / 项目级 `.claude/`）的 `env.ANTHROPIC_AUTH_TOKEN`——**这就是 Claude Code 的 `sk-` token，运行器会自动读取，无需手动配置**。仅当 `sk-` 开头（排除真 Anthropic 的 `sk-ant-`）且 base 指向 fmode 时才采纳。
+4. `~/.claude/settings.json`（含 `settings.local.json` / 项目级 `.claude/`）的 `env.ANTHROPIC_AUTH_TOKEN`——**这就是 FmodeCode / Claude Code 的 `sk-` token，运行器会自动读取，无需手动配置**。仅当 `sk-` 开头（排除真 Anthropic 的 `sk-ant-`）且 base 指向 fmode 时才采纳。
 
-> 这把 `sk-` 就是你在 Claude Code / FmodeStudio 里配的 fmode newapi token，装完技能即可命中。若运行器报「未找到 token」，那是缺 token、**不是「用不了」**——请勿点任何付费/充值弹窗，按上面任一来源补上即可。
+> 这把 `sk-` 就是你在 FmodeCode / Claude Code / FmodeStudio 里配的 fmode newapi token，装完技能即可命中。若运行器报「未找到 token」，那是缺 token、**不是「用不了」**——请勿点任何付费/充值弹窗，按上面任一来源补上即可。
 >
 > 不要在任何示例或代码里写讯飞 appId/apiKey/secretKey——它们只属于服务端。
 
@@ -112,7 +112,7 @@ Body:    原始音频字节
 - 服务端在转写成功、拿到讯飞返回的真实时长后扣费；扣费走与其它 Fmode 模型同一套 newapi 计量，用量在统一后台可查。
 - 客户端传的 `duration` 仅用于发起前的余额预校验，最终以服务端真实时长为准。
 
-## 安装为 Claude Code 技能
+## 安装为 FmodeCode / Claude Code 技能
 
 ```bash
 # 项目级 → ./.claude/skills/skill-listen
@@ -122,7 +122,7 @@ npx --yes skill-listen@latest workspace
 npx --yes skill-listen@latest install
 ```
 
-安装后可直接提示 Claude Code，例如：`把 meeting.mp3 转写成文字，开启说话人分离。`
+安装后可直接提示 FmodeCode / Claude Code，例如：`把 meeting.mp3 转写成文字，开启说话人分离。`
 
 ## 注意事项
 

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // Copyright (c) 未来飞马
 //
-// Licensed under the MIT License. See LICENSE in the project root
-// for the full license text.
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
 // Trademark Notice:
-// The MIT license grants copyright permissions for source code only.
+// The MPL-2.0 license grants copyright permissions for source code only.
 // It does NOT grant any rights to use trademarks including "未来飞马",
 // "Harness Loop", "RSI", and associated slogan "让AI进化提前发生，让AI落地快人一步".
 // Any use of these trademarks requires separate written permission.
@@ -75,13 +76,13 @@ function parseArgs(argv) {
 
 function printHelp() {
   console.log([
-    'skill-listen — 录音转写网关客户端 + Claude Code 技能安装器',
+    'skill-listen — 录音转写网关客户端 + FmodeCode / Claude Code 技能安装器',
     '',
     '通过 Fmode 网关转写音频（讯飞录音文件转写，凭据仅服务端）：',
     '  npx skill-listen@latest transcribe -- audio.mp3 [--language autodialect] [--diarize]',
     '      需要 fmode token（环境变量 FMODE_API_TOKEN 或 ~/.fmode/config.json）',
     '',
-    '安装 Claude Code 技能：',
+    '安装 FmodeCode / Claude Code 技能：',
     '  npx skill-listen@latest workspace [--smoke]   # 安装到 ./.claude/skills/skill-listen',
     '  npx skill-listen@latest install [--smoke]     # 安装到 ~/.claude/skills/skill-listen',
     '  npx skill-listen@latest install --target <dir> [--force]',
@@ -162,13 +163,13 @@ function printNextSteps(target) {
   console.log(`Skill installed at: ${target}`);
   console.log('');
   if (workspaceMode) {
-    console.log('Project-level skill is ready. Restart the VSCode Claude Code session if it was open.');
+    console.log('Project-level skill is ready. Restart the VSCode FmodeCode / Claude Code session if it was open.');
   } else {
-    console.log('User-level skill is ready for all Claude Code workspaces.');
+    console.log('User-level skill is ready for all FmodeCode / Claude Code workspaces.');
   }
   console.log('');
   console.log('转写走 Fmode 网关（凭据仅服务端），客户端只需 fmode token。');
-  console.log('Try this prompt in Claude Code:');
+  console.log('Try this prompt in FmodeCode / Claude Code:');
   console.log('  把 meeting.mp3 转写成文字，开启说话人分离。');
 }
 

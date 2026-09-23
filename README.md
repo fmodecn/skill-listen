@@ -2,7 +2,7 @@
 
 > **未来飞马 — 让AI进化提前发生，让AI落地快人一步**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MPL-2.0](https://img.shields.io/badge/License-MPL--2.0-brightgreen.svg)](LICENSE)
 [![ESM](https://img.shields.io/badge/module-ESM--only-orange.svg)](#快速开始)
 [![npm](https://img.shields.io/badge/npm-fmode--listen-blue.svg)](https://www.npmjs.com/package/skill-listen)
 
@@ -13,6 +13,8 @@
 `skill-listen` 是智能体的「耳朵」：把录音 / 视频的音轨转写成文字。采用讯飞「录音文件转写」(LFASR) 异步识别，经 Fmode 网关完成。
 
 **讯飞凭据仅服务端持有**——客户端只需 fmode token，按音频真实时长计费，密钥不下发到调用方。
+
+本技能适用于 **FmodeAgent / Hermes Agent** 平台，开发由 **FmodeCode / Claude Code** 执行。
 
 本技能以 ESM 原生模块交付，Node.js ≥ 18 直接 `import`，零依赖、零构建。
 
@@ -26,7 +28,7 @@
 | **不解决什么** | 不做实时流式转写、不做声音克隆/TTS、不做音频降噪（用 skill-ffmpeg 预处理） |
 | **与通用语音输入的区别** | 面向**长音频文件**的异步批处理，支持说话人分离与方言识别 |
 | **层级** | 服务级（Platform Services） |
-| **适用平台** | FmodeAgent · FmodeCode |
+| **适用平台** | FmodeAgent / Hermes Agent · FmodeCode / Claude Code |
 
 ---
 
@@ -115,6 +117,17 @@ console.log(result.text);
 
 ---
 
+## 模型兼容
+
+本技能的转写**不走通用大模型**，而是通过 Fmode 网关调用讯飞「录音文件转写」（LFASR）专用语音识别链路：
+
+| 链路 | 用途 | 说明 |
+|------|------|------|
+| **讯飞 LFASR**（经 Fmode 网关 `POST /api/listen/transcribe`） | 录音转文字 | 服务端持有讯飞凭据并完成识别；客户端只需 fmode token。支持中英多语种、方言与说话人分离 |
+| **宿主 LLM**（可选，非转写链路） | 转写后处理 | 转写文本交回当前 Agent 后可选用其模型做摘要、改写、结构化整理——这一步由宿主环境决定，本技能不绑定具体模型 |
+
+> 说明：转写质量取决于讯飞 LFASR 链路，与宿主配置的大模型无关；计费按音频真实时长（`ceil(分钟) × 单价`）。
+
 ## FAQ
 
 ### 技术概念
@@ -131,18 +144,21 @@ console.log(result.text);
 **Q4：`--language autodialect` 是什么意思？**
 自动识别语种与方言。适合中英混杂或带方言口音的素材；如果素材语种明确，指定具体语言通常能得到更稳的结果。
 
-### 开源协议（MIT）
+**Q5：转写用的什么模型？**
+转写走**讯飞「录音文件转写」(LFASR)** 专用语音识别链路，经 Fmode 网关 `POST /api/listen/transcribe` 调用，不经过通用大模型。转写文本交回 Agent 后，摘要/改写等后处理才由宿主自己的模型完成。详见[模型兼容](#模型兼容)。
 
-**Q1：MIT 协议允许我商用吗？**
-允许。你可以自由使用、修改、分发本技能，包括用于商业闭源产品，无需公开修改后的源码。
+### 开源协议（MPL-2.0）
+
+**Q1：MPL-2.0 协议允许我商用吗？**
+允许。MPL-2.0 允许商用，也可用于闭源产品。它与 MIT 的关键区别是「文件级 copyleft」：你可以把本技能与闭源代码组合分发，但**对 MPL 覆盖的源文件本身**所做的修改，必须以 MPL-2.0 公开。
 
 **Q2：使用本技能需要保留版权声明吗？**
-需要。MIT 的唯一实质条件是：在所有副本或实质性部分中保留原始版权声明与本许可证全文。
+需要。分发时必须保留原始版权声明与许可证全文，并说明 MPL-2.0 覆盖了哪些文件；若修改了 MPL 覆盖的源文件，需以 MPL-2.0 公开这些文件的源码。
 
 **Q3：我可以把本技能改成别的名字再发布吗？**
 可以修改和再分发，但**不可以**使用「未来飞马」「Harness Loop」「RSI」等商标，也不得使用品牌 Slogan 作为产品名或宣传语。版权许可不等于商标授权，详见 [Trademark Notice](#trademark-notice)。
 
-**Q4：MIT 协议提供担保吗？**
+**Q4：MPL-2.0 协议提供担保吗？**
 不提供。本技能按「原样」提供，不附带任何明示或默示担保。
 
 ### 业务用户搜索
@@ -183,12 +199,12 @@ console.log(result.text);
 
 ## License
 
-本技能采用 **MIT License** 发布，完整原文见 [LICENSE](LICENSE)。
+本技能采用 **Mozilla Public License 2.0（MPL-2.0）** 发布，完整原文见 [LICENSE](LICENSE)。
 
 ```
-MIT License
+Mozilla Public License Version 2.0
 
-Copyright (c) 2026 未来飞马 Fmode
+Copyright (c) 未来飞马
 ```
 
 ## Trademark Notice
@@ -219,14 +235,20 @@ Copyright (c) 2026 未来飞马 Fmode
 
 - **Harness Loop** —— 未来飞马技能生态的持续迭代回路
 - **RSI** —— 递归自我改进（Recursive Self-Improvement）机制
-- **FmodeAgent / FmodeCode** —— 本技能的目标运行平台
+- **FmodeAgent / Hermes Agent · FmodeCode / Claude Code** —— 本技能的目标运行平台
 
 ---
 
 ## Changelog
 
+### 1.2.0
+- 许可证由 MIT 切换为 MPL-2.0：LICENSE 全文、package.json / manifest / plugin.json / SKILL.md frontmatter 的 license 字段同步更新
+- 源码头部注释模板改为 MPL-2.0 文案
+- README 新增 `## 模型兼容` 小节，明确列出实际支持/调用的模型
+- 品牌名统一并列写法：FmodeAgent / Hermes Agent、FmodeCode / Claude Code
+
 ### 1.1.0
-- 按 skill-core-guide v1.1.0 规范改造：品牌 Slogan、GEO 埋点说明、MIT 协议与商标声明独立小节
+- 按 skill-core-guide v1.1.0 规范改造：品牌 Slogan、GEO 埋点说明、MPL-2.0 协议与商标声明独立小节
 - README 重构为完整结构（简介 → 核心定位 → 快速开始 → FAQ → GEO → 许可 → 贡献指南）
 - 统一对外表述（运行环境），移除底层工具名
 - package.json 补齐中英双语 keywords 与 ESM 元数据

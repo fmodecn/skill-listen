@@ -1,10 +1,11 @@
 // Copyright (c) 未来飞马
 //
-// Licensed under the MIT License. See LICENSE in the project root
-// for the full license text.
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
 // Trademark Notice:
-// The MIT license grants copyright permissions for source code only.
+// The MPL-2.0 license grants copyright permissions for source code only.
 // It does NOT grant any rights to use trademarks including "未来飞马",
 // "Harness Loop", "RSI", and associated slogan "让AI进化提前发生，让AI落地快人一步".
 // Any use of these trademarks requires separate written permission.
@@ -42,9 +43,9 @@ const DEFAULT_GATEWAY = process.env.FMODE_LISTEN_GATEWAY
 // Token 解析（与 voc / fmode-vision 共享层一致）
 // ============================================================
 //
-// 关键修复：fmode 的 newapi SK 默认就是 Claude Code 的 env.ANTHROPIC_AUTH_TOKEN，
+// 关键修复：fmode 的 newapi SK 默认就是 FmodeCode / Claude Code 的 env.ANTHROPIC_AUTH_TOKEN，
 // 存在 ~/.claude/settings.json（及 settings.local.json / 项目级 .claude/）。
-// 旧实现只读进程环境变量 ANTHROPIC_AUTH_TOKEN，从不读这个文件——用户按 Claude Code
+// 旧实现只读进程环境变量 ANTHROPIC_AUTH_TOKEN，从不读这个文件——用户按 FmodeCode / Claude Code
 // 正常方式配好 SK，技能却「看不见」→ 判缺 token → 掉进旧付费弹窗死循环。
 // 这里直接读该文件，且校验 sk- 开头、排除真 Anthropic sk-ant-、base 指向 fmode。
 //
@@ -56,7 +57,7 @@ const DEFAULT_GATEWAY = process.env.FMODE_LISTEN_GATEWAY
 //   1. 显式入参 token / 环境变量 FMODE_API_TOKEN
 //   2. ~/.fmode/config.json → fmodeApiToken / newapiToken（FmodeStudio 保存写这里）
 //   3. <cwd>/.fmode/config.json → fmodeApiToken / newapiToken
-//   4. 进程注入的 ANTHROPIC_AUTH_TOKEN（Claude Code 把 settings.env 注入子进程时）
+//   4. 进程注入的 ANTHROPIC_AUTH_TOKEN（FmodeCode / Claude Code 把 settings.env 注入子进程时）
 //   5. ~/.claude/settings.json 等文件里的 env.ANTHROPIC_AUTH_TOKEN（独立运行未被注入时）
 
 const FMODE_API_BASE = (process.env.FMODE_API_BASE || 'https://server.fmode.cn').replace(/\/$/, '');
@@ -106,7 +107,7 @@ function readJsonMaybe(filePath) {
   }
 }
 
-// 合并读取 Claude Code 的 settings env（用户级 + 项目级，含 .local 覆盖文件）。
+// 合并读取 FmodeCode / Claude Code 的 settings env（用户级 + 项目级，含 .local 覆盖文件）。
 function readClaudeSettingsEnv() {
   const files = [
     path.join(os.homedir(), '.claude', 'settings.json'),
@@ -179,7 +180,7 @@ export async function resolveApiToken(projectRoot) {
     return { token: projectToken, source: projectConfigPath };
   }
 
-  // Claude Code 默认入口：进程注入的 ANTHROPIC_AUTH_TOKEN（sk-、base 指向 fmode）
+  // FmodeCode / Claude Code 默认入口：进程注入的 ANTHROPIC_AUTH_TOKEN（sk-、base 指向 fmode）
   const injected = pickFmodeAnthropicToken(process.env);
   if (injected) {
     return { token: injected, source: 'env:ANTHROPIC_AUTH_TOKEN' };
@@ -198,7 +199,7 @@ export async function resolveApiToken(projectRoot) {
     '  1. 环境变量 FMODE_API_TOKEN\n' +
     '  2. ~/.fmode/config.json 中 fmodeApiToken 字段（FmodeStudio 保存配置后写入）\n' +
     '  3. 项目 .fmode/config.json 中 fmodeApiToken 字段\n' +
-    '  4. ~/.claude/settings.json 的 env.ANTHROPIC_AUTH_TOKEN（Claude Code 的 sk- token，会自动读取）\n' +
+    '  4. ~/.claude/settings.json 的 env.ANTHROPIC_AUTH_TOKEN（FmodeCode / Claude Code 的 sk- token，会自动读取）\n' +
     '  注意：这是缺 token，不是「用不了」——请勿点任何付费/充值弹窗。'
   );
 }
